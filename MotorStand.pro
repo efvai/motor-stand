@@ -1,6 +1,7 @@
 QT       += core gui
 QT       += charts
-QT       += concurrent
+QT      += serialbus widgets
+QT      += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,6 +12,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ModbusMaster/modbusmaster.cpp \
     Plots/ltr11.cpp \
     Plots/ltr22.cpp \
     Plots/plot.cpp \
@@ -20,10 +22,12 @@ SOURCES += \
     Plots/samplingthread.cpp \
     Plots/signaldata.cpp \
     Saving/filesaver.cpp \
+    Settings/modbussettingsdialog.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    ModbusMaster/modbusmaster.h \
     Plots/ltr11.h \
     Plots/ltr22.h \
     Plots/plot.h \
@@ -33,11 +37,13 @@ HEADERS += \
     Plots/samplingthread.h \
     Plots/signaldata.h \
     Saving/filesaver.h \
+    Settings/modbussettingsdialog.h \
     mainwindow.h
 
 FORMS += \
     Plots/plotswindow.ui \
     Saving/filesaver.ui \
+    Settings/modbussettingsdialog.ui \
     mainwindow.ui
 
 
@@ -75,7 +81,10 @@ else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
 #else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr11api
 
 RESOURCES += \
+    Resources/Resources.qrc \
     Saving/SaveParameters.qrc
 
 CONFIG += qwt
+
+DISTFILES +=
 

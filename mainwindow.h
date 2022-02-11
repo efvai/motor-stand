@@ -3,10 +3,11 @@
 
 #include <QMainWindow>
 #include "./Plots/plotswindow.h"
-#include "./modbusMasterInc/modbusMaster/modbusmaster.h"
+#include "./ModbusMaster/modbusmaster.h"
 #include "Saving/filesaver.h"
 #include "./Plots/plotter.h"
 #include "./Plots/samplingthread.h"
+#include "./Settings/modbussettingsdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,12 +25,21 @@ private slots:
     void on_saveAllAction();
     void on_startReceiveButtonClicked();
     void on_stopReceiveButtonClicked();
+    void on_connectModbus();
+    void on_writeModbus();
+    void on_modbusStateChanged(int state);
 private:
     Ui::MainWindow *ui;
-    ModbusMaster *m_motorDisplay = nullptr;
+
+    ModbusController *m_modbus = nullptr;
+    ModbusSettingsDialog *m_modbusSettings = nullptr;
+
     FileSaver *m_fs = nullptr;
     Plotter *m_plotter = nullptr;
     SamplingThread *m_testThread = nullptr;
+
+private:
+    void initActions();
 
 
 };

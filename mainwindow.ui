@@ -44,29 +44,29 @@
       <property name="title">
        <string>Двигатель</string>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>126</width>
+         <width>134</width>
          <height>26</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="settingsButton_2">
+         <widget class="QPushButton" name="settingsButton">
           <property name="text">
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="modbusMasterInc/modbusMaster/modbusMaster.qrc">
-            <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
+           <iconset resource="Resources/Resources.qrc">
+            <normaloff>:/images/images/settings.png</normaloff>:/images/images/settings.png</iconset>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="connectButton_2">
+         <widget class="QPushButton" name="connectButton">
           <property name="text">
            <string>Подключиться</string>
           </property>
@@ -74,7 +74,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -85,7 +85,7 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="0" colspan="2">
-         <widget class="QCheckBox" name="enableBox_2">
+         <widget class="QCheckBox" name="enableBox">
           <property name="text">
            <string>Питание двигателя</string>
           </property>
@@ -99,7 +99,7 @@
          </widget>
         </item>
         <item row="1" column="1" colspan="2">
-         <widget class="QDoubleSpinBox" name="targetSpinner_2">
+         <widget class="QDoubleSpinBox" name="targetSpinner">
           <property name="minimum">
            <double>-100.000000000000000</double>
           </property>
@@ -109,14 +109,14 @@
          </widget>
         </item>
         <item row="2" column="0" colspan="2">
-         <widget class="QPushButton" name="zeroButton_2">
+         <widget class="QPushButton" name="zeroButton">
           <property name="text">
            <string>Ноль</string>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="writeButton_2">
+         <widget class="QPushButton" name="writeButton">
           <property name="text">
            <string>Отправить</string>
           </property>
@@ -206,7 +206,7 @@
   </action>
  </widget>
  <resources>
-  <include location="modbusMasterInc/modbusMaster/modbusMaster.qrc"/>
+  <include location="Resources/Resources.qrc"/>
  </resources>
  <connections/>
 </ui>
