@@ -8,7 +8,7 @@
 SamplingThread::SamplingThread( QObject* parent )
     : QwtSamplingThread( parent )
     , m_frequency( 1.0 )
-    , m_amplitude( 150.0 )
+    , m_amplitude( 5.0 )
 {
 }
 

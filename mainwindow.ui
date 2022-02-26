@@ -6,169 +6,140 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>810</width>
-    <height>250</height>
+    <width>700</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>810</width>
-    <height>250</height>
+    <width>700</width>
+    <height>320</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>810</width>
-    <height>250</height>
+    <width>700</width>
+    <height>320</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Motor Stand</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
-     <widget class="QGroupBox" name="motorGroupBox">
-      <property name="minimumSize">
-       <size>
-        <width>450</width>
-        <height>180</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>443</width>
-        <height>180</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Двигатель</string>
-      </property>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>134</width>
-         <height>26</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QPushButton" name="settingsButton">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="Resources/Resources.qrc">
-            <normaloff>:/images/images/settings.png</normaloff>:/images/images/settings.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="connectButton">
-          <property name="text">
-           <string>Подключиться</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>70</y>
-         <width>210</width>
-         <height>80</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0" colspan="2">
-         <widget class="QCheckBox" name="enableBox">
-          <property name="text">
-           <string>Питание двигателя</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Цель:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" colspan="2">
-         <widget class="QDoubleSpinBox" name="targetSpinner">
-          <property name="minimum">
-           <double>-100.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QPushButton" name="zeroButton">
-          <property name="text">
-           <string>Ноль</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="writeButton">
-          <property name="text">
-           <string>Отправить</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="minimumSize">
-       <size>
-        <width>330</width>
-        <height>180</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>330</width>
-        <height>180</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>L-Card</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="startTestBtn">
-         <property name="text">
-          <string>Start Test</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="stopTestBtn">
-         <property name="text">
-          <string>Stop Test</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-   </layout>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>700</width>
+      <height>250</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>700</width>
+      <height>250</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>700</width>
+      <height>250</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QTableWidget" name="deviceTable">
+     <property name="geometry">
+      <rect>
+       <x>1</x>
+       <y>1</y>
+       <width>461</width>
+       <height>241</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="startTestBtn">
+     <property name="geometry">
+      <rect>
+       <x>470</x>
+       <y>210</y>
+       <width>91</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Запись</string>
+     </property>
+     <property name="icon">
+      <iconset resource="Resources/Resources.qrc">
+       <normaloff>:/images/images/start.png</normaloff>:/images/images/start.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="stopTestBtn">
+     <property name="geometry">
+      <rect>
+       <x>580</x>
+       <y>210</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Стоп</string>
+     </property>
+     <property name="icon">
+      <iconset resource="Resources/Resources.qrc">
+       <normaloff>:/images/images/stop.png</normaloff>:/images/images/stop.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="openPlotBtn">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>170</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Показать графики</string>
+     </property>
+     <property name="icon">
+      <iconset resource="Resources/Resources.qrc">
+       <normaloff>:/images/images/wave-graph.png</normaloff>:/images/images/wave-graph.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>810</width>
+     <width>700</width>
      <height>22</height>
     </rect>
    </property>
@@ -177,31 +148,39 @@
      <string>Графики</string>
     </property>
     <addaction name="openPlotAction"/>
+    <addaction name="globalPlotSettingsAction"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
+   <widget class="QMenu" name="fileMenu">
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="saveAction"/>
-    <addaction name="saveAllAction"/>
+    <addaction name="saveAllAction_2"/>
    </widget>
-   <addaction name="menu_2"/>
+   <addaction name="fileMenu"/>
    <addaction name="plotMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="saveAction">
-   <property name="text">
-    <string>Сохранить</string>
-   </property>
-  </action>
   <action name="openPlotAction">
+   <property name="icon">
+    <iconset resource="Resources/Resources.qrc">
+     <normaloff>:/images/images/wave-graph.png</normaloff>:/images/images/wave-graph.png</iconset>
+   </property>
    <property name="text">
     <string>Открыть</string>
    </property>
   </action>
-  <action name="saveAllAction">
+  <action name="saveAllAction_2">
    <property name="text">
     <string>Сохранить всё</string>
+   </property>
+  </action>
+  <action name="globalPlotSettingsAction">
+   <property name="icon">
+    <iconset resource="Resources/Resources.qrc">
+     <normaloff>:/images/images/settings.png</normaloff>:/images/images/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>Параметры</string>
    </property>
   </action>
  </widget>

@@ -1,5 +1,4 @@
 QT       += core gui
-QT       += charts
 QT      += serialbus widgets
 QT      += serialport
 
@@ -16,13 +15,13 @@ SOURCES += \
     Plots/ltr11.cpp \
     Plots/ltr22.cpp \
     Plots/plot.cpp \
-    Plots/plotswindow.cpp \
     Plots/plotter.cpp \
-    Plots/renderthread.cpp \
     Plots/samplingthread.cpp \
     Plots/signaldata.cpp \
     Saving/filesaver.cpp \
+    Settings/globalplotsettingsdialog.cpp \
     Settings/modbussettingsdialog.cpp \
+    Settings/plotsettingsdialog.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -31,19 +30,20 @@ HEADERS += \
     Plots/ltr11.h \
     Plots/ltr22.h \
     Plots/plot.h \
-    Plots/plotswindow.h \
     Plots/plotter.h \
-    Plots/renderthread.h \
     Plots/samplingthread.h \
     Plots/signaldata.h \
     Saving/filesaver.h \
+    Settings/globalplotsettingsdialog.h \
     Settings/modbussettingsdialog.h \
+    Settings/plotsettingsdialog.h \
     mainwindow.h
 
 FORMS += \
-    Plots/plotswindow.ui \
     Saving/filesaver.ui \
+    Settings/globalplotsettingsdialog.ui \
     Settings/modbussettingsdialog.ui \
+    Settings/plotsettingsdialog.ui \
     mainwindow.ui
 
 
@@ -55,12 +55,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-include(Plots/qt_zoomable_chart_widget/zoomable_chart_widget.pri)
-include(modbusMasterInc/modbusMaster/modbusMaster.pri)
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
-else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
+#else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
 
 INCLUDEPATH += $$PWD/../Libs/ltr/include
 DEPENDPATH += $$PWD/../Libs/ltr/include
@@ -68,12 +65,12 @@ DEPENDPATH += $$PWD/../Libs/ltr/include
 #win64:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr22api
 #else:win64:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr22api
 #else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr22api
-#LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr11api
-#LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr22api
+LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr11api
+LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
-else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
+#else:unix: LIBS += -L$$PWD/../Libs/ltr/lib/mingw/ -lltr22api
 
 
 #win64:CONFIG(release, debug|release): LIBS += -L$$PWD/../Libs/ltr/lib/mingw64/ -lltr11api

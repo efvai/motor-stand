@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GlobalPlotSettingsDialog</class>
+ <widget class="QDialog" name="GlobalPlotSettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Параметры графиков</string>
+  </property>
+  <widget class="QPushButton" name="applyBtn">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>260</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ок</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="plotCountSpinner">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>220</y>
+     <width>42</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>6</number>
+   </property>
+   <property name="value">
+    <number>3</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>131</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Количество графиков:</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

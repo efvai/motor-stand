@@ -1,48 +1,73 @@
 #include "plot.h"
 #include "signaldata.h"
+#include "./Settings/plotsettingsdialog.h"
 
 #include <QwtPlotGrid>
 #include <QwtPlotLayout>
 #include <QwtPlotCanvas>
 #include <QwtPlotMarker>
-#include <QwtPlotCurve>
+//#include <QwtPlotCurve>
 #include <QwtScaleDiv>
 #include <QwtScaleMap>
 #include <QwtPlotDirectPainter>
 #include <QwtPainter>
+#include <QwtPlotLegendItem>
 
 #include <QEvent>
+#include <QAction>
+#include <QMenu>
+#include <QMouseEvent>
+
+#include <QDebug>
 
 namespace
 {
-    class Canvas : public QwtPlotCanvas
+class LegendItem : public QwtPlotLegendItem
+{
+public:
+    LegendItem()
     {
-      public:
-        Canvas( QwtPlot* plot = NULL )
-            : QwtPlotCanvas( plot )
-        {
-            /*
+        setRenderHint( QwtPlotItem::RenderAntialiased );
+
+        const QColor c1( Qt::black );
+
+        setTextPen( c1 );
+        setBorderPen( c1 );
+
+        QColor c2( Qt::white );
+        c2.setAlpha( 200 );
+
+        setBackgroundBrush( c2 );
+    }
+};
+class Canvas : public QwtPlotCanvas
+{
+public:
+    Canvas( QwtPlot* plot = NULL )
+        : QwtPlotCanvas( plot )
+    {
+        /*
                 The backing store is important, when working with widget
                 overlays ( f.e rubberbands for zooming ).
                 Here we don't have them and the internal
                 backing store of QWidget is good enough.
              */
 
-            setPaintAttribute( QwtPlotCanvas::BackingStore, false );
-            setBorderRadius( 10 );
+        setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+        setBorderRadius( 10 );
 
-            if ( QwtPainter::isX11GraphicsSystem() )
-            {
+        if ( QwtPainter::isX11GraphicsSystem() )
+        {
 #if QT_VERSION < 0x050000
-                /*
+            /*
                     Qt::WA_PaintOutsidePaintEvent works on X11 and has a
                     nice effect on the performance.
                  */
 
-                setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
+            setAttribute( Qt::WA_PaintOutsidePaintEvent, true );
 #endif
 
-                /*
+            /*
                     Disabling the backing store of Qt improves the performance
                     for the direct painter even more, but the canvas becomes
                     a native window of the window system, receiving paint events
@@ -52,71 +77,95 @@ namespace
                     we better don't disable both backing stores.
                  */
 
-                if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
-                {
-                    setAttribute( Qt::WA_PaintOnScreen, true );
-                    setAttribute( Qt::WA_NoSystemBackground, true );
-                }
+            if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
+            {
+                setAttribute( Qt::WA_PaintOnScreen, true );
+                setAttribute( Qt::WA_NoSystemBackground, true );
             }
-
-            setupPalette();
         }
 
-      private:
-        void setupPalette()
-        {
-            QPalette pal = palette();
+        setupPalette();
+    }
 
-            pal.setBrush( QPalette::Window, QBrush( Qt::white ) );
-
-            // QPalette::WindowText is used for the curve color
-            pal.setColor( QPalette::WindowText, Qt::black );
-
-            setPalette( pal );
-        }
-    };
-
-    class CurveData : public QwtSeriesData< QPointF >
+private:
+    void setupPalette()
     {
-      public:
-        const SignalData& values() const
-        {
-            return SignalData::instance(idx);
-        }
+        QPalette pal = palette();
 
-        SignalData& values()
-        {
-            return SignalData::instance(idx);
-        }
+        pal.setBrush( QPalette::Window, QBrush( Qt::white ) );
 
-        virtual QPointF sample( size_t index ) const QWT_OVERRIDE
-        {
-            return SignalData::instance(idx).value( index );
-        }
+        // QPalette::WindowText is used for the curve color
+        pal.setColor( QPalette::WindowText, Qt::black );
 
-        virtual size_t size() const QWT_OVERRIDE
-        {
-            return SignalData::instance(idx).size();
-        }
+        setPalette( pal );
+    }
+};
 
-        virtual QRectF boundingRect() const QWT_OVERRIDE
-        {
-            return SignalData::instance(idx).boundingRect();
-        }
-        void setIndex(int idx) {
-            this->idx = idx;
-        }
-    private:
-        int idx;
-    };
+class CurveData : public QwtSeriesData< QPointF >
+{
+public:
+    const SignalData& values() const
+    {
+        return SignalData::instance(idx);
+    }
+
+    SignalData& values()
+    {
+        return SignalData::instance(idx);
+    }
+
+    virtual QPointF sample( size_t index ) const QWT_OVERRIDE
+    {
+        return SignalData::instance(idx).value( index );
+    }
+
+    virtual size_t size() const QWT_OVERRIDE
+    {
+        return SignalData::instance(idx).size();
+    }
+
+    virtual QRectF boundingRect() const QWT_OVERRIDE
+    {
+        return SignalData::instance(idx).boundingRect();
+    }
+    void setIndex(int idx) {
+        this->idx = idx;
+    }
+    int getIndex() {
+        return idx;
+    }
+private:
+    int idx;
+};
+
 }
 
 Plot::Plot(QWidget* parent, int idx) :
     QwtPlot(parent)
-    ,m_paintedPoints( 0 )
-    ,m_interval( 0.0, 10.0 )
-    ,m_timerId( -1 )
+  ,m_paintedPoints( 0 )
+  ,m_interval( 0.0, 10.0 )
+  ,m_timerId( -1 )
 {
+    settings = new QAction(tr("&Параметры графика"), this);
+    m_settings = new PlotSettingsDialog(this);
+    connect(settings, &QAction::triggered, m_settings, &QDialog::show);
+    connect(m_settings, &PlotSettingsDialog::settingsChanged, this, &Plot::updateSettings);
+    newData = new QActionGroup(this);
+    newData->setExclusive(false);
+    mainMenu = new QMenu(this);
+    dataSubMenu = new QMenu(this);
+    dataSubMenu->setTitle("Выбрать данные:");
+    for (int jdx = 0; jdx < PlotsList::instance().plotsList.size(); jdx++) {
+        newData->addAction(dataSubMenu->addAction(
+                               PlotsList::instance().plotsList.at(jdx).channelName))->setData(
+                               PlotsList::instance().plotsList.at(jdx).index);
+    }
+    connect(newData, &QActionGroup::triggered, this, &Plot::setNewData);
+    mainMenu->addMenu(dataSubMenu);
+    mainMenu->addAction(settings);
+
+
+
     m_directPainter = new QwtPlotDirectPainter();
 
     setAutoReplot( false );
@@ -124,9 +173,8 @@ Plot::Plot(QWidget* parent, int idx) :
 
     plotLayout()->setAlignCanvasToScales( true );
 
-    setAxisTitle( QwtAxis::XBottom, "Time [s]" );
+    //setAxisTitle( QwtAxis::XBottom, "Время [с]" );
     setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
-    setAxisScale( QwtAxis::YLeft, -200.0, 200.0 );
 
     QwtPlotGrid* grid = new QwtPlotGrid();
     grid->setPen( Qt::gray, 0.0, Qt::DotLine );
@@ -142,16 +190,21 @@ Plot::Plot(QWidget* parent, int idx) :
     m_origin->setLinePen( Qt::gray, 0.0, Qt::DashLine );
     m_origin->attach( this );
 
-    m_curve = new QwtPlotCurve();
+    m_curve = new NamedPlotCurve();
     m_curve->setStyle( QwtPlotCurve::Lines );
     m_curve->setPen( Qt::red , 2.0, Qt::SolidLine);
     m_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
     m_curve->setPaintAttribute( QwtPlotCurve::ClipPolygons, false );
+    m_curve->setIndex(idx);
+    m_curve->setTitle(m_curve->getName());
     CurveData *data = new CurveData();
     data->setIndex(idx);
     m_curve->setData( data );
 
     m_curve->attach( this );
+
+    updateSettings();
+    isInit = false;
 }
 
 
@@ -162,8 +215,34 @@ Plot::~Plot()
 
 void Plot::start()
 {
-    m_elapsedTimer.start();
-    m_timerId = startTimer( 10 );
+    if (PlotsList::instance().plotsList.at(m_curve->getIndex()).enabled) {
+        if (!elapsedTimerStarted)
+            m_elapsedTimer.start();
+        else {
+            m_elapsedTimer.restart();
+            CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
+            curveData->values().clearValues();
+            m_interval.setInterval(0.0, 10.0);
+            setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
+            replot();
+        }
+        m_timerId = startTimer( 10 );
+        isStarted = true;
+    }
+}
+
+void Plot::stop() {
+    killTimer(m_timerId);
+    elapsedTimerStarted = true;
+    CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
+    curveData->values().save();
+    curveData->values().assignSaved();
+    if (curveData->values().size() > 0) {
+        m_interval.setInterval(0.0, curveData->values().value(curveData->values().size() - 1).x());
+        setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
+    }
+    isStarted = false;
+    replot();
 }
 
 void Plot::replot()
@@ -255,6 +334,54 @@ void Plot::incrementInterval()
     replot();
 }
 
+bool Plot::getIsStarted() const
+{
+    return isStarted;
+}
+
+void Plot::updateSettings()
+{
+    setAxisScale( QwtAxis::YLeft, m_settings->settings().yMin, m_settings->settings().yMax);
+    m_interval.setInterval(m_interval.minValue(), m_settings->settings().xMax + m_interval.minValue());
+    setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
+    if (m_settings->settings().legendEnabled) {
+        if (m_legendItem == nullptr) {
+            m_legendItem = new LegendItem();
+            m_legendItem->attach(this);
+        }
+        m_legendItem->setAlignmentInCanvas( Qt::Alignment(m_settings->settings().legendAlignment | Qt::AlignTop));
+        m_legendItem->setBorderRadius( 8 );
+        m_legendItem->setMargin( 4 );
+        m_legendItem->setSpacing( 2 );
+        m_legendItem->setItemMargin( 0 );
+    }
+    else {
+        delete m_legendItem;
+        m_legendItem = nullptr;
+    }
+    QwtPlotItemList curveList = itemList(QwtPlotItem::Rtti_PlotCurve);
+    for (int idx = 0; idx < curveList.count(); idx++) {
+        NamedPlotCurve *curve = static_cast<NamedPlotCurve*>(curveList[idx]);
+        curve->setLegendIconSize(QSize(8, 8));
+        curve->setTitle(curve->getName());
+
+    }
+    if (!isInit)
+        replot();
+}
+
+void Plot::setNewData(QAction *triggered)
+{
+    int key = triggered->data().toInt();
+    if (key != m_curve->getIndex()) {
+    CurveData *data = new CurveData();
+    data->setIndex(key);
+    m_curve->setIndex(key);
+    m_curve->swapData( data );
+    }
+    updateSettings();
+}
+
 void Plot::timerEvent( QTimerEvent* event )
 {
     if ( event->timerId() == m_timerId )
@@ -289,6 +416,36 @@ bool Plot::eventFilter( QObject* object, QEvent* event )
     {
         m_curve->setPen( canvas()->palette().color( QPalette::WindowText ) );
     }
+    if (event->type() == QEvent::ContextMenu) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*> (event);
+        if (isStarted) {
+            dataSubMenu->setEnabled(false);
+        } else {
+            dataSubMenu->setEnabled(true);
+        }
+        mainMenu->exec(mouseEvent->globalPos());
+    }
 
     return QwtPlot::eventFilter( object, event );
+}
+
+const QString &NamedPlotCurve::getName() const
+{
+    return name;
+}
+
+void NamedPlotCurve::setName(const QString &newName)
+{
+    name = newName;
+}
+
+int NamedPlotCurve::getIndex() const
+{
+    return index;
+}
+
+void NamedPlotCurve::setIndex(int newIndex)
+{
+    index = newIndex;
+    name = PlotsList::instance().plotsList.at(index).channelName;
 }

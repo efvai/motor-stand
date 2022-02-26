@@ -12,6 +12,7 @@ class SignalData::PrivateData
         : boundingRect( 1.0, 1.0, -2.0, -2.0 ) // invalid
     {
         values.reserve( 1000 );
+        saveValues.reserve( 1000 );
     }
 
     inline void append( const QPointF& sample )
@@ -36,9 +37,15 @@ class SignalData::PrivateData
         }
     }
 
+    inline void appendSave()
+    {
+        saveValues.append(values);
+    }
+
     QReadWriteLock lock;
 
     QVector< QPointF > values;
+    QVector< QPointF > saveValues;
     QRectF boundingRect;
 
     QMutex mutex; // protecting pendingValues
@@ -62,9 +69,19 @@ int SignalData::size() const
     return m_data->values.size();
 }
 
+int SignalData::sizeSaved() const
+{
+    return m_data->saveValues.size();
+}
+
 QPointF SignalData::value( int index ) const
 {
     return m_data->values[index];
+}
+
+float SignalData::savedYValue( int index) const
+{
+    return m_data->saveValues[index].y();
 }
 
 QRectF SignalData::boundingRect() const
@@ -110,6 +127,7 @@ void SignalData::clearStaleValues( double limit )
     m_data->boundingRect = QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
 
     const QVector< QPointF > values = m_data->values;
+    m_data->appendSave();
     m_data->values.clear();
     m_data->values.reserve( values.size() );
 
@@ -129,8 +147,36 @@ void SignalData::clearStaleValues( double limit )
     m_data->lock.unlock();
 }
 
+void SignalData::clearValues()
+{
+    m_data->lock.lockForWrite();
+
+    m_data->boundingRect = QRectF( 1.0, 1.0, -2.0, -2.0 ); // invalid
+
+    std::size_t sizeOfValues = m_data->values.size();
+    std::size_t sizeOfSave = m_data->saveValues.size();
+    m_data->values.clear();
+    m_data->values.reserve( sizeOfValues );
+    m_data->saveValues.clear();
+    m_data->saveValues.reserve(sizeOfSave);
+    m_data->lock.unlock();
+}
+
+void SignalData::save()
+{
+    m_data->appendSave();
+}
+
+void SignalData::assignSaved()
+{
+    m_data->values = m_data->saveValues;
+}
+
 SignalData& SignalData::instance(int idx)
 {
-    static SignalData valueVector[3];
+    static SignalData valueVector[7];
     return valueVector[idx];
 }
+
+
+

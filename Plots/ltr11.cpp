@@ -4,23 +4,25 @@
 #include <conio.h>
 #include <QDebug>
 #include <QProcess>
+#include "signaldata.h"
+#include <QPointF>
 
 Ltr11::Ltr11(QObject *parent)
     : QThread(parent)
 {
   //  QProcess::startDetached("./ltrd/ltrd.exe", QStringList() << "--start");
-    m_abort = false;
-    err = 0;
+    m_ltr11_error = 0;
     getParams(slot);
-    if (!err) {
+    if (!m_ltr11_error) {
         init();
     }
 }
 
 Ltr11::~Ltr11() {
-    mutex.lock();
+    m_mutex.lock();
     m_abort = true;
-    mutex.unlock();
+    m_cond.wakeOne();
+    m_mutex.unlock();
     wait();
 }
 
@@ -31,9 +33,6 @@ void Ltr11::setSlot(int slot) {
         this->slot = -1;
     }
 }
-
-
-
 
 void Ltr11::getParams(int slot) {
     param.slot = LTR_CC_CHNUM_MODULE1;
@@ -47,15 +46,17 @@ void Ltr11::getParams(int slot) {
 
 void Ltr11::init() {
     LTR11_Init(&hltr11);
-    err = LTR11_Open(&hltr11, param.addr, LTRD_PORT_DEFAULT, param.serial, param.slot);
-    if (err != LTR_OK) {
-        qCritical("Не удалось установить связь с модулем. Ошибка %d (%s)\n",
-                err, LTR11_GetErrorString(err));
+    m_ltr11_error = LTR11_Open(&hltr11, param.addr, LTRD_PORT_DEFAULT, param.serial, param.slot);
+    if (m_ltr11_error != LTR_OK) {
+        QString status = QString("Не удалось установить связь с модулем. Ошибка %1")
+                .arg(m_ltr11_error);
+        setStatus(status);
     } else {
-        err = LTR11_GetConfig(&hltr11);
-        if (err != LTR_OK) {
-            qCritical("Не удалось прочитать информацию о модуле. Ошибка %d: %s\n", err,
-                    LTR11_GetErrorString(err));
+        m_ltr11_error = LTR11_GetConfig(&hltr11);
+        if (m_ltr11_error != LTR_OK) {
+            QString status = QString("Не удалось прочитать информацию о модуле.\n Ошибка %1 (%2)")
+                    .arg(m_ltr11_error).arg(LTR11_GetErrorString(m_ltr11_error));
+            setStatus(status);
         } else {  /* конфигурация получена успешно */
         /* вывод информации о модуле */
         qDebug( "Информация о модуле:\n"
@@ -89,110 +90,58 @@ void Ltr11::configure() {
     /* режим сбора данных */
     hltr11.ADCMode = LTR11_ADCMODE_ACQ;
     /* частота дискретизации - 400 кГц. Подбираем нужные делители */
-    LTR11_FindAdcFreqParams(ACD_FREQ, &hltr11.ADCRate.prescaler,
+    LTR11_FindAdcFreqParams(ADC_FREQ, &hltr11.ADCRate.prescaler,
                             &hltr11.ADCRate.divider, NULL);
 
     /* передаем настройки в модуль */
-    err = LTR11_SetADC(&hltr11);
-    if (err != LTR_OK) {
-        qCritical("Не удалось установить настройки модуля. Ошибка %d: %s\n", err,
-                LTR11_GetErrorString(err));
+    m_ltr11_error = LTR11_SetADC(&hltr11);
+    if (m_ltr11_error != LTR_OK) {
+        QString status = QString("Не удалось установить настройки модуля. Ошибка %1 (%2)")
+                .arg(m_ltr11_error).arg(LTR11_GetErrorString(m_ltr11_error));
+        setStatus(status);
     }
+    QString status = QString("Готов");
+    setStatus(status);
 }
 
-void Ltr11::processReceive()
+void Ltr11::setStatus(const QString &status)
 {
-    m_abort = false;
-    start();
+    qDebug() << status;
+    PlotsList::instance().setStatus(0, status);
+    emit sendStatus();
 }
 
-void Ltr11::receive() {
-    int f_out = 0;
-    if (err == LTR_OK) {
-        DWORD recvd_blocks=0;
-        INT recv_data_cnt = RECV_BLOCK_CH_SIZE * hltr11.LChQnt;
-        DWORD  *rbuf = (DWORD*)malloc(recv_data_cnt*sizeof(rbuf[0]));
-        double *data = (double *)malloc(recv_data_cnt*sizeof(data[0]));
-        if ((rbuf==NULL) || (data==NULL)) {
-            qCritical("Ошибка выделения памяти!\n");
-            err = LTR_ERROR_MEMORY_ALLOC;
-        } else {
-            /* запуск сбора данных */
-            err = LTR11_Start(&hltr11);
-            if (err != LTR_OK) {
-                qCritical("Не удалось запустить сбор данных. Ошибка %d: %s\n", err,
-                        LTR11_GetErrorString(err));
-            } else {
-                INT stop_err = 0;
-                qDebug("Сбор данных запущен. Для останова нажмите %s\n",
-                       "любую клавишу");
-
-                while (!f_out && (err==LTR_OK)) {
-                    INT recvd;
-                    /* в таймауте учитываем время выполнения самого преобразования*/
-                    DWORD tout = RECV_TOUT + (DWORD)(RECV_BLOCK_CH_SIZE/hltr11.ChRate + 1);
-                    /* получение данных от LTR11 */
-                    recvd = LTR11_Recv(&hltr11, rbuf, NULL, recv_data_cnt, tout);
-                    /* Значение меньше нуля соответствуют коду ошибки */
-                    if (recvd<0) {
-                        err = recvd;
-                        qCritical("Ошибка приема данных. Ошибка %d:%s\n",
-                                err, LTR11_GetErrorString(err));
-                    } else if (recvd!=recv_data_cnt) {
-                        qCritical("Принято недостаточно данных. Запрашивали %d, приняли %d\n",
-                                recv_data_cnt, recvd);
-                        err = LTR_ERROR_RECV_INSUFFICIENT_DATA;
-                    } else {
-                        /* сохранение принятых и обработанных данных в буфере */
-                        err = LTR11_ProcessData(&hltr11, rbuf, data, &recvd, TRUE, TRUE);
-                        if (err!=LTR_OK) {
-                            qCritical("Ошибка обработки данных. Ошибка %d:%s\n",
-                                    err, LTR11_GetErrorString(err));
-                        } else {
-                            INT ch;
-                            recvd_blocks++;
-                            /* выводим по первому слову на канал */
-                            qDebug("Блок %4d: ", recvd_blocks);
-
-                            for (ch=0; ch < hltr11.LChQnt; ch++) {
-                                qDebug("%8.2f", data[ch]);
-
-                                if (ch==(hltr11.LChQnt-1)) {
-                                    qDebug("\n");
-                                } else {
-                                    qDebug(",  ");
-                                }
-                            }
-
-                        }
-                    }
-                    if (err == LTR_OK) {
-                       // if (recvd_blocks > 10)
-                        //    f_out = 1;
-                    }
-                }
-                /* останавливаем сбор данных */
-                stop_err = LTR11_Stop(&hltr11);
-                if (stop_err!=LTR_OK) {
-                    qCritical("Не удалось остановить сбор данных. Ошибка %d: %s\n", err,
-                        LTR11_GetErrorString(stop_err));
-                    if (err == LTR_OK)
-                        err = stop_err;
-                } else {
-                    qDebug("Сбор остановлен успешно!\n");
-                }
-            }
-
-            free(rbuf);
-            free(data);
-        }
+void Ltr11::transaction()
+{
+    if (!PlotsList::instance().plotsList.at(0).enabled) {
+        return;
     }
-    closeLtr();
+    const QMutexLocker locker(&m_mutex);
+    //configure();
+    if (!isRunning()) {
+        configure();
+        start();
+    }
+    else
+        m_cond.wakeOne();
+}
+
+bool Ltr11::pause() const
+{
+    return m_pause;
+}
+
+void Ltr11::setPause(bool newPause)
+{
+    m_mutex.lock();
+    m_pause = newPause;
+    m_mutex.unlock();
 }
 
 void Ltr11::run() {
-    if (err != LTR_OK) {
-        qDebug() << "Run error\n";
+    if (m_ltr11_error != LTR_OK) {
+        QString status = QString("Ошибка %1").arg(m_ltr11_error);
+        setStatus(status);
         return;
     }
     DWORD receivedBlocks = 0;
@@ -200,22 +149,31 @@ void Ltr11::run() {
     DWORD *rbuf = new DWORD[receivedDataCnt]();
     double *data = new double[receivedDataCnt]();
     if ((rbuf == nullptr) || (data == nullptr)) {
-        qCritical("Ошибка выделения памяти!\n");
-        err = LTR_ERROR_MEMORY_ALLOC;
+        m_ltr11_error = LTR_ERROR_MEMORY_ALLOC;
+        QString status = QString("Ошибка выделения памяти!");
+        setStatus(status);
         return;
     }
-    /* запуск сбора данных */
-    err = LTR11_Start(&hltr11);
-    if (err != LTR_OK) {
-        qCritical("Не удалось запустить сбор данных. Ошибка %d: %s\n", err,
-                LTR11_GetErrorString(err));
-        delete[] rbuf;
-        delete[] data;
-        return;
-    }
-    //INT stop_err = 0;
-    qDebug("Сбор данных запущен.");
-    while (err==LTR_OK) {
+
+    while (m_ltr11_error==LTR_OK && !m_abort) {
+        if (m_pause) {
+            //configure();
+            /* запуск сбора данных */
+            m_ltr11_error = LTR11_Start(&hltr11);
+            if (m_ltr11_error != LTR_OK) {
+                QString status = QString("Не удалось запустить сбор данных. Ошибка %1 (%2)")
+                        .arg(m_ltr11_error).arg(LTR11_GetErrorString(m_ltr11_error));
+                setStatus(status);
+                delete[] rbuf;
+                delete[] data;
+                return;
+            }
+            m_pause = false;
+            time = 0.0;
+            receivedBlocks = 0;
+            QString status = QString("Сбор данных запущен");
+            setStatus(status);
+        }
         INT recvd;
         /* в таймауте учитываем время выполнения самого преобразования*/
         DWORD tout = RECV_TOUT + (DWORD)(RECV_BLOCK_CH_SIZE/hltr11.ChRate + 1);
@@ -223,33 +181,45 @@ void Ltr11::run() {
         recvd = LTR11_Recv(&hltr11, rbuf, NULL, receivedDataCnt, tout);
         /* Значение меньше нуля соответствуют коду ошибки */
         if (recvd < 0) {
-            err = recvd;
-            qCritical("Ошибка приема данных. Ошибка %d:%s\n",
-                    err, LTR11_GetErrorString(err));
+            m_ltr11_error = recvd;
+            QString status = QString("Ошибка приема данных. Ошибка %1 (%2)")
+                    .arg(m_ltr11_error).arg(LTR11_GetErrorString(m_ltr11_error));
+            setStatus(status);
         } else if (recvd!=receivedDataCnt) {
-            qCritical("Принято недостаточно данных. Запрашивали %d, приняли %d\n",
-                    receivedDataCnt, recvd);
-            err = LTR_ERROR_RECV_INSUFFICIENT_DATA;
+            QString status = QString("Принято недостаточно данных. Запрашивали %1, приняли %2")
+                    .arg(receivedDataCnt).arg(recvd);
+            setStatus(status);
+            m_ltr11_error = LTR_ERROR_RECV_INSUFFICIENT_DATA;
         } else {
             /* сохранение принятых и обработанных данных в буфере */
-            err = LTR11_ProcessData(&hltr11, rbuf, data, &recvd, TRUE, TRUE);
-            if (err!=LTR_OK) {
-                qCritical("Ошибка обработки данных. Ошибка %d:%s\n",
-                        err, LTR11_GetErrorString(err));
+            m_ltr11_error = LTR11_ProcessData(&hltr11, rbuf, data, &recvd, TRUE, TRUE);
+            if (m_ltr11_error!=LTR_OK) {
+                QString status = QString("Ошибка обработки данных. Ошибка %1, %2")
+                        .arg(m_ltr11_error).arg(LTR11_GetErrorString(m_ltr11_error));
+                setStatus(status);
             } else {
                 /* Принимаем данные */
                 receivedBlocks++;
-                qDebug("Блок %4d: ", receivedBlocks);
-                m_block.insert(m_block.end(), &data[0], &data[receivedDataCnt]);
-                emit sendBlock(m_block);
-                m_block.clear();
+                //qDebug("Блок %4d: ", receivedBlocks);
+                for (INT i = 0; i < receivedDataCnt; i++) {
+                    SignalData::instance(0).append(QPointF(time, data[i]));
+                    time += 1.0/ADC_FREQ;
+                }
+                //m_block.insert(m_block.end(), &data[0], &data[receivedDataCnt]);
+                //emit sendBlock(m_block);
+                //m_block.clear();
             }
 
 
         }
-        if (m_abort) {
-            closeLtr();
-            break;
+        if (m_pause) {
+            m_mutex.lock();
+            QString status = QString("Сбор данных остановлен");
+            setStatus(status);
+            LTR11_Stop(&hltr11);
+            m_cond.wait(&m_mutex);
+
+            m_mutex.unlock();
         }
     }
     delete[] rbuf;
@@ -258,6 +228,7 @@ void Ltr11::run() {
 
 void Ltr11::closeLtr() {
     if (LTR11_IsOpened(&hltr11) == LTR_OK) {
+        LTR11_Stop(&hltr11);
         /* закрытие канала связи с модулем */
         LTR11_Close(&hltr11);
 
@@ -267,7 +238,7 @@ void Ltr11::closeLtr() {
 
 
 void Ltr11::stopProcess() {
-    mutex.lock();
+    m_mutex.lock();
     m_abort = true;
-    mutex.unlock();
+    m_mutex.unlock();
 }

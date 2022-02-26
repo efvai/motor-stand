@@ -7,7 +7,7 @@
 #include <QMutex>
 #include <QThread>
 #include <vector>
-
+#include <QWaitCondition>
 
 typedef struct {
     int slot; // Номер слота
@@ -24,31 +24,39 @@ public:
 protected:
     void run();
 signals:
-    void sendBlock(const std::vector<double> &block);
+    void sendStatus();
 public slots:
     void stopProcess();
 private:
     void getParams(int slot);
     void init();
     void configure();
+    void setStatus(const QString &status);
 public:
-    void processReceive();
+    void transaction();
 
 private:
     std::vector<double> m_block;
-    bool m_abort;
-    QMutex mutex;
+
+    bool m_abort = false;
+    bool m_pause = true;
+    QMutex m_mutex;
+    QWaitCondition m_cond;
+
     TLTR11 hltr11;
-    int err;
+    int m_ltr11_error = 0;
     t_open_param param;
-    const int RECV_BLOCK_CH_SIZE = 4096 * 2;
+    const int RECV_BLOCK_CH_SIZE = 1024;
     const int RECV_TOUT = 4000;
-    const int ACD_FREQ = 10000;
+    const int ADC_FREQ = 10000;
     int slot = 2;
+
+    float time = 0.0f;
 public:
-    void receive();
     void closeLtr();
     void setSlot(int slot);
+    bool pause() const;
+    void setPause(bool newPause);
 };
 Q_DECLARE_METATYPE(std::vector<double>);
 #endif // LTR11_H

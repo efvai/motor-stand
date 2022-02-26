@@ -2,11 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "./Plots/plotswindow.h"
 #include "./ModbusMaster/modbusmaster.h"
 #include "Saving/filesaver.h"
 #include "./Plots/plotter.h"
-#include "./Plots/samplingthread.h"
 #include "./Settings/modbussettingsdialog.h"
 
 QT_BEGIN_NAMESPACE
@@ -28,18 +26,22 @@ private slots:
     void on_connectModbus();
     void on_writeModbus();
     void on_modbusStateChanged(int state);
+    void toogleDevice(int row, int col);
+    void on_deviceStatusChanged();
 private:
     Ui::MainWindow *ui;
 
-    ModbusController *m_modbus = nullptr;
+    ModbusMaster *m_modbus = nullptr;
     ModbusSettingsDialog *m_modbusSettings = nullptr;
 
     FileSaver *m_fs = nullptr;
     Plotter *m_plotter = nullptr;
-    SamplingThread *m_testThread = nullptr;
+
+    bool isStarted = false;
 
 private:
     void initActions();
+    void initDeviceTable();
 
 
 };

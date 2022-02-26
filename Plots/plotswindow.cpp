@@ -213,7 +213,7 @@ void PlotsWindow::stopTestPlot() {
 
 void PlotsWindow::startLtr11Plot()
 {
-    ltr11Thread->processReceive();
+    //ltr11Thread->processReceive();
 }
 
 void PlotsWindow::stopLtr11Plot()
