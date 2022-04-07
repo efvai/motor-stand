@@ -132,6 +132,30 @@
       </size>
      </property>
     </widget>
+    <widget class="QPushButton" name="openMotorControlBtn">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>30</y>
+       <width>171</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Управление двигателем</string>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>30</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -154,10 +178,32 @@
     <property name="title">
      <string>Файл</string>
     </property>
+    <addaction name="saveAction"/>
     <addaction name="saveAllAction_2"/>
    </widget>
+   <widget class="QMenu" name="menuLCard">
+    <property name="title">
+     <string>LCard</string>
+    </property>
+    <addaction name="lcardSettingsAction"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="errorCodesAction"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Двигатель</string>
+    </property>
+    <addaction name="MotorControlAction"/>
+   </widget>
    <addaction name="fileMenu"/>
+   <addaction name="menu"/>
+   <addaction name="menuLCard"/>
    <addaction name="plotMenu"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="openPlotAction">
@@ -181,6 +227,30 @@
    </property>
    <property name="text">
     <string>Параметры</string>
+   </property>
+  </action>
+  <action name="lcardSettingsAction">
+   <property name="icon">
+    <iconset resource="Resources/Resources.qrc">
+     <normaloff>:/images/images/settings.png</normaloff>:/images/images/settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>Параметры</string>
+   </property>
+  </action>
+  <action name="saveAction">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="errorCodesAction">
+   <property name="text">
+    <string>Коды ошибок</string>
+   </property>
+  </action>
+  <action name="MotorControlAction">
+   <property name="text">
+    <string>Управление двигателем</string>
    </property>
   </action>
  </widget>

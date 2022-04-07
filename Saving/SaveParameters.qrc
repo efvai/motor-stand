@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>test.txt</file>
+        <file>configure.txt</file>
     </qresource>
     <qresource prefix="/images"/>
 </RCC>

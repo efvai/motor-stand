@@ -58,20 +58,13 @@ ModbusSettingsDialog::ModbusSettingsDialog(QWidget *parent) :
     ui->setupUi(this);
 
     ui->parityCombo->setCurrentIndex(0);
-    ui->baudCombo->setCurrentText(QString::number(m_settings.baud));
     ui->portEdit->setText(m_settings.port);
-    ui->stopBitsCombo->setCurrentText(QString::number(m_settings.stopBits));
     ui->timeoutSpinner->setValue(m_settings.responseTime);
     ui->retriesSpinner->setValue(m_settings.numberOfRetries);
     ui->serverSpinner->setValue(m_settings.serverAddress);
 
     connect(ui->applyButton, &QPushButton::clicked, [this]() {
-        m_settings.parity = ui->parityCombo->currentIndex();
-        if (m_settings.parity > 0)
-            m_settings.parity++;
-        m_settings.baud = ui->baudCombo->currentText().toInt();
         m_settings.port = ui->portEdit->text();
-        m_settings.stopBits = ui->stopBitsCombo->currentText().toInt();
         m_settings.responseTime = ui->timeoutSpinner->value();
         m_settings.numberOfRetries = ui->retriesSpinner->value();
         m_settings.serverAddress = ui->serverSpinner->value();

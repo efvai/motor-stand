@@ -22,6 +22,8 @@
                     39062,5; 52083; 78125
 */
 
+class Ltr22Settings;
+
 struct freq {
     int fdiv_main = 0;
     int fdiv_extra = 0;
@@ -48,14 +50,17 @@ protected:
 private:
     TLTR22 *m_module;
     int m_ltr22_error;
-    freq m_frequency;
+    freq m_frequency; // why?
     open_param m_param;
-    int slot = 3;
-    int channels = 2;
+    int slot = 3; // why?
+    int m_activeChannels = 1;
 
-    const int RECV_BLOCK_CH_SIZE = 100;
+    const int RECV_BLOCK_CH_SIZE = 500;
     const int RECV_TOUT = 4000;
     float time = 0.0f;
+
+    QString moduleInfo = "Нет информации!";
+    Ltr22Settings *settings = nullptr;
 
 private:
     void initModule();
@@ -73,8 +78,12 @@ public:
     bool pause() const;
     void setPause(bool newPause);
     void transaction();
+    void setSettings(Ltr22Settings newSettings);
+    const QString &getModuleInfo() const;
+
 signals:
     void sendStatus();
+    void sendInfo(QString &info);
 private:
     void setStatus(const QString &status, int ch, bool all);
 

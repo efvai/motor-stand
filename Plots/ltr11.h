@@ -15,6 +15,8 @@ typedef struct {
     DWORD addr; // ip-адрес сервера
 } t_open_param;
 
+class Ltr11Settings;
+
 class Ltr11 : public QThread
 {
      Q_OBJECT
@@ -25,8 +27,11 @@ protected:
     void run();
 signals:
     void sendStatus();
+    void sendInfo(QString &info);
 public slots:
     void stopProcess();
+
+
 private:
     void getParams(int slot);
     void init();
@@ -48,7 +53,8 @@ private:
     t_open_param param;
     const int RECV_BLOCK_CH_SIZE = 1024;
     const int RECV_TOUT = 4000;
-    const int ADC_FREQ = 10000;
+    Ltr11Settings *settings = nullptr;
+    QString moduleInfo = "Нет информации!";
     int slot = 2;
 
     float time = 0.0f;
@@ -57,6 +63,8 @@ public:
     void setSlot(int slot);
     bool pause() const;
     void setPause(bool newPause);
+    void setSettings(Ltr11Settings newSettings);
+    const QString &getModuleInfo() const;
 };
 Q_DECLARE_METATYPE(std::vector<double>);
 #endif // LTR11_H

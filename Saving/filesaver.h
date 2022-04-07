@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 
@@ -24,6 +24,8 @@ public:
 
 public:
     void saveFile(const QString &path, const QString &fileName, const std::vector<float> &data);
+    void generateConfig(const QString &path, int ltr11Freq, int ltr22Freq);
+
 private:
     Ui::FileSaver *ui = nullptr;
 };

@@ -6,6 +6,9 @@
 #include "Saving/filesaver.h"
 #include "./Plots/plotter.h"
 #include "./Settings/modbussettingsdialog.h"
+#include "./Settings/LCardSettings/devicesettings.h"
+#include "Saving/filessaverdialog.h"
+#include "MotorControl/motorcontrolwidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,14 +31,25 @@ private slots:
     void on_modbusStateChanged(int state);
     void toogleDevice(int row, int col);
     void on_deviceStatusChanged();
+    void on_openLcardSettings();
+    void on_LcardSettingsChanged();
+    void on_openErrorCodes();
+    void on_openSaverDialog();
+    void on_openMotorControl();
 private:
     Ui::MainWindow *ui;
 
     ModbusMaster *m_modbus = nullptr;
     ModbusSettingsDialog *m_modbusSettings = nullptr;
 
+    deviceSettings *m_lcardSettings = nullptr;
+
     FileSaver *m_fs = nullptr;
+    FilesSaverDialog *m_fsDialog = nullptr;
+
     Plotter *m_plotter = nullptr;
+
+    MotorControlWidget *m_motorControl = nullptr;
 
     bool isStarted = false;
 

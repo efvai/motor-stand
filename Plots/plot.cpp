@@ -192,7 +192,7 @@ Plot::Plot(QWidget* parent, int idx) :
 
     m_curve = new NamedPlotCurve();
     m_curve->setStyle( QwtPlotCurve::Lines );
-    m_curve->setPen( Qt::red , 2.0, Qt::SolidLine);
+    m_curve->setPen( Qt::red , 1, Qt::SolidLine);
     m_curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
     m_curve->setPaintAttribute( QwtPlotCurve::ClipPolygons, false );
     m_curve->setIndex(idx);
@@ -213,6 +213,8 @@ Plot::~Plot()
     delete m_directPainter;
 }
 
+
+
 void Plot::start()
 {
     if (PlotsList::instance().plotsList.at(m_curve->getIndex()).enabled) {
@@ -220,28 +222,38 @@ void Plot::start()
             m_elapsedTimer.start();
         else {
             m_elapsedTimer.restart();
-            CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
-            curveData->values().clearValues();
-            m_interval.setInterval(0.0, 10.0);
-            setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
-            replot();
+            clear();
         }
         m_timerId = startTimer( 10 );
         isStarted = true;
     }
+    else {
+        clear();
+    }
 }
 
 void Plot::stop() {
-    killTimer(m_timerId);
-    elapsedTimerStarted = true;
-    CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
-    curveData->values().save();
-    curveData->values().assignSaved();
-    if (curveData->values().size() > 0) {
-        m_interval.setInterval(0.0, curveData->values().value(curveData->values().size() - 1).x());
-        setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
+    if (PlotsList::instance().plotsList.at(m_curve->getIndex()).enabled) {
+        killTimer(m_timerId);
+        elapsedTimerStarted = true;
+        CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
+        curveData->values().save();
+        curveData->values().assignSaved();
+        if (curveData->values().size() > 0) {
+            m_interval.setInterval(0.0, curveData->values().value(curveData->values().size() - 1).x());
+            setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
+        }
+        isStarted = false;
+        replot();
     }
-    isStarted = false;
+}
+
+void Plot::clear()
+{
+    CurveData* curveData = static_cast< CurveData* >( m_curve->data() );
+    curveData->values().clearValues();
+    m_interval.setInterval(m_interval.minValue(), m_settings->settings().xMax + m_interval.minValue());
+    setAxisScale( QwtAxis::XBottom, m_interval.minValue(), m_interval.maxValue() );
     replot();
 }
 

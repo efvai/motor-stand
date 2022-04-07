@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>288</width>
-    <height>285</height>
+    <height>202</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,126 +63,13 @@
       <string>Параметры COM-порта</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Стоп биты:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Бит четности:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="portEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="parityCombo">
-        <item>
-         <property name="text">
-          <string>No</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Even</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Odd</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Space</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mark</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="stopBitsCombo">
-        <item>
-         <property name="text">
-          <string>1</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="baudCombo">
-        <item>
-         <property name="text">
-          <string>1200</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>2400</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>4800</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>9600</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>19200</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>38400</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>57600</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>115200</string>
-         </property>
-        </item>
-       </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Название:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Бод рейт:</string>
         </property>
        </widget>
       </item>

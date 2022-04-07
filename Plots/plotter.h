@@ -9,6 +9,7 @@
 class SamplingThread;
 class GlobalPlotSettingsDialog;
 
+
 class Plotter : public QWidget
 {
     Q_OBJECT
@@ -17,10 +18,9 @@ public:
     ~Plotter();
     void start();
     void stop();
-    Plot *m_testPlot = nullptr;
-    Plot *m_ltr11Plot = nullptr;
-    Plot *m_ltr22Plot = nullptr;
-private:
+    const QString& getLtr11Info();
+    const QString& getLtr22Info();
+public:
     Ltr11 *m_ltr11 = nullptr;
     Ltr22 *m_ltr22 = nullptr;
     SamplingThread *m_test = nullptr;

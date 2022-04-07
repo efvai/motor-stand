@@ -68,8 +68,8 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>40</y>
+     <x>10</x>
+     <y>160</y>
      <width>144</width>
      <height>49</height>
     </rect>
@@ -107,7 +107,7 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>139</width>
+     <width>153</width>
      <height>107</height>
     </rect>
    </property>
@@ -132,6 +132,9 @@
         </item>
         <item row="0" column="1">
          <widget class="QDoubleSpinBox" name="yMaxSpinner">
+          <property name="decimals">
+           <number>4</number>
+          </property>
           <property name="minimum">
            <double>-99.900000000000006</double>
           </property>
@@ -149,6 +152,9 @@
         </item>
         <item row="1" column="1">
          <widget class="QDoubleSpinBox" name="yMinSpinner">
+          <property name="decimals">
+           <number>4</number>
+          </property>
           <property name="minimum">
            <double>-99.989999999999995</double>
           </property>

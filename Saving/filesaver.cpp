@@ -1,6 +1,5 @@
 #include "filesaver.h"
 #include "ui_filesaver.h"
-#include <QFile>
 #include <QTextStream>
 #include <QDebug>
 
@@ -19,17 +18,6 @@ FileSaver::~FileSaver()
 void FileSaver::saveFile(const QString &path, const QString &fileName, const std::vector<float> &data)
 {
     QFile outFile(path + "/" + fileName + ".dat");
-//    QFile headerFile(":/" + fileName + ".txt");
-//    if (!headerFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-//        qDebug() << "Unable to open: " + fileName + ".txt";
-//        return;
-//    }
-//    QTextStream in(&headerFile);
-//    QString header;
-//    while (!in.atEnd()) {
-//        header += in.readLine();
-//    }
-//    qDebug() << header;
     if (!outFile.open(QIODevice::WriteOnly)) {
         qDebug() << "Unable to open: " + path + fileName + ".dat";
         return;
@@ -41,4 +29,16 @@ void FileSaver::saveFile(const QString &path, const QString &fileName, const std
     for (auto sample : data) {
         out << sample;
     }
+}
+
+void FileSaver::generateConfig(const QString &path, int ltr11Freq, int ltr22Freq)
+{
+    QFile config(path + "/" + "config.txt");
+    config.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&config);
+    out << tr("Параметры модулей:\n");
+    out << tr("LTR11:\n");
+    out << tr("Частота АЦП: ") << ltr11Freq << tr(" Гц\n");
+    out << tr("LTR22:\n");
+    out << tr("Частота АЦП: ") << ltr22Freq << tr(" Гц\n");
 }

@@ -8,8 +8,8 @@ class PlotSettingsDialog;
 }
 
 struct PlotSettings {
-    float yMin = -0.1;
-    float yMax = 2.0;
+    float yMin = -0.01;
+    float yMax = 0.01;
     float xMax = 10.0;
     bool legendEnabled = true;
     int legendAlignment = 2;

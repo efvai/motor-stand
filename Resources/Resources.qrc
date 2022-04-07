@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/application-exit.png</file>
+        <file>images/connect.png</file>
+        <file>images/disconnect.png</file>
+        <file>images/settings.png</file>
+        <file>images/horizontal_zoom.png</file>
+        <file>images/pan.png</file>
+        <file>images/rectangle_zoom.png</file>
+        <file>images/vertical_zoom.png</file>
+        <file>images/zoom_to_fit_all.png</file>
+        <file>images/start.png</file>
+        <file>images/stop.png</file>
+        <file>images/wave-graph.png</file>
+    </qresource>
+</RCC>

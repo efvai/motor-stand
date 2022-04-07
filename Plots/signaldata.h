@@ -47,12 +47,13 @@ public:
         return l;
     }
     QList<dataTitle> plotsList = {
-        dataTitle(0, "Ltr 11", "LTR 11"),
-        dataTitle(1, "Ltr 22, канал 1", "LTR 22"),
-        dataTitle(2, "Ltr 22, канал 2", "LTR 22"),
-        dataTitle(3, "Ltr 22, канал 3", "LTR 22"),
-        dataTitle(4, "Ltr 22, канал 4", "LTR 22"),
-        dataTitle(5, "Modbus (test)", "MODBUS")
+        dataTitle(0, "Ltr 11", "LTR 11", true),
+        dataTitle(1, "Ltr 22, канал 1", "LTR 22", true),
+        dataTitle(2, "Ltr 22, канал 2", "LTR 22", false),
+        dataTitle(3, "Ltr 22, канал 3", "LTR 22", false),
+        dataTitle(4, "Ltr 22, канал 4", "LTR 22", false),
+        dataTitle(5, "Ltr 34, канал 1", "LTR 34", true),
+        dataTitle(6, "Modbus (test)", "MODBUS", false)
 
     };
     void setStatus(int idx, const QString &newStatus) {

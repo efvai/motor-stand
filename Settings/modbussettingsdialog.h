@@ -65,10 +65,6 @@ class SettingsDialog;
 
 struct ModbusSettings {
     QString port = "COM3";
-    int parity = QSerialPort::NoParity;
-    int baud = QSerialPort::Baud115200;
-    int dataBits = QSerialPort::Data8;
-    int stopBits = QSerialPort::OneStop;
     int responseTime = 1000;
     int numberOfRetries = 3;
     int serverAddress = 10;
